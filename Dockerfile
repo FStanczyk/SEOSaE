@@ -3,6 +3,6 @@ FROM rust:latest as build
 WORKDIR /usr/simple-bidask
 COPY ./ ./
 
-RUN cargo build --release
+RUN cargo install --path .
 
-CMD ["./target/release/simple-bidask"]
+CMD ["simple-bidask"]
