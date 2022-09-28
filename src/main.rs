@@ -77,8 +77,8 @@ fn main() {
                 * Checks if the order is a buy or sell order and finds a matching order in 
                 * correct vector.
                 */
-                if new_order.0 == true {
-                    if sell_orders.len() != 0 {
+                if new_order.0 {
+                    if !sell_orders.is_empty() {
                         matching::matching(&mut sell_orders, &mut new_order.1);
                     }
 
@@ -86,7 +86,7 @@ fn main() {
                         buy_orders.push(new_order.1);
                     }
                 }else{
-                    if buy_orders.len() != 0 {
+                    if !buy_orders.is_empty() {
                         matching::matching(&mut buy_orders, &mut new_order.1);
                     }
 
@@ -116,12 +116,12 @@ fn main() {
              * There would be a better way if program would upgrade HB and LA only when
              * it changed, not every loop.
             */
-            if sell_orders.len() > 0 {
+            if !sell_orders.is_empty() {
                 lowest_ask = sell_orders[0].0;
 
             }
 
-            if buy_orders.len() > 0  {
+            if !buy_orders.is_empty() {
                 highest_bid = buy_orders[0].0;
             }
 
@@ -150,19 +150,15 @@ fn main() {
     std::thread::spawn(move||{
         loop {       
             
-            if !ORDERS_FROM_FILE{
-                if let_work_receiver.recv().unwrap()== true {
+                if !ORDERS_FROM_FILE && let_work_receiver.recv().unwrap(){
 
                     DEBUG_MODE_DATA("Generator thread working...");
-
-                    let new_order:(bool, (f64, u32));
                     
-                    new_order = generate_order(&lowest_ask, &highest_bid);
+                    let new_order = generate_order(&lowest_ask, &highest_bid);
                     
                     let _ = order_sender.send(new_order);
                 }
             }
-        }
     });
 
     orderbook_thread.join().unwrap();
@@ -188,7 +184,7 @@ fn generate_order(_low: &f64, _high: &f64) -> (bool, (f64, u32)){
      * simulation will be a standard_deviation +- highest/lowest bid/ask 
     */ 
     let mean: f64;
-    if buy_order == true {
+    if buy_order{
         mean = _low - 2.00*(STANDARD_DEVIATION);
         log_order_type = String::from("BUY");
     } else {
@@ -234,11 +230,11 @@ fn slp(){
 }
 
 fn display_orderbook(sell_orders: &Vec<(f64, u32)>, buy_orders: &Vec<(f64, u32)>, lowest_ask: &f64, highest_bid: &f64){
-    let sell_orders_by_price: Vec<(f64, u32)> = tuple_sum_by_key(&sell_orders);
-    let buy_orders_by_price:  Vec<(f64, u32)> = tuple_sum_by_key(&buy_orders);
+    let sell_orders_by_price: Vec<(f64, u32)> = tuple_sum_by_key(sell_orders);
+    let buy_orders_by_price:  Vec<(f64, u32)> = tuple_sum_by_key(buy_orders);
 
     println!("{}{:?}","SELL ORDERS: ".bright_red(), sell_orders_by_price);
-    println!("");
+    println!();
     println!("{}{:?}","BUY ORDERS: ".bright_green(), buy_orders_by_price);
     println!("{}: {}","Lowest ask ".on_blue(), lowest_ask);
     println!("{}: {}","Highest bid".on_blue(), highest_bid);
@@ -258,7 +254,7 @@ fn tuple_sum_by_key(book: &Vec<(f64, u32)>) -> Vec<(f64, u32)> {
      * Algorithm to sum up values with the same key in tuple
     */
     let mut result = vec![];
-    if book.len() > 0 {
+    if !book.is_empty() {
         let mut item = book[0];
         for &t in book.iter().skip(1) {
             if t.0 == item.0 {

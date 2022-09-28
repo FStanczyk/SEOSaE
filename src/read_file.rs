@@ -1,6 +1,5 @@
 use std::{error::Error, fs::OpenOptions};
 use crate::matching;
-use csv;
 pub fn process_data(buy_orders: &mut Vec<(f64,u32)>, sell_orders: &mut Vec<(f64,u32)>) -> Result<(), Box<dyn Error>>  {
 
     let mut rdr = csv::Reader::from_path(crate::PATH_TO_READ_FILE)?;

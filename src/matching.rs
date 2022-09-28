@@ -11,7 +11,7 @@ pub fn matching(orders: &mut Vec<(f64, u32)>, new_order:&mut(f64, u32)) {
      * or it made a full iteration without any matching
     */
 
-    while new_order.1 != 0 && found_match == true{
+    while new_order.1 != 0 && found_match{
         for (index, i) in orders.iter_mut().enumerate(){
             if new_order.0 == i.0 && i.1 != 0{
 
@@ -28,12 +28,12 @@ pub fn matching(orders: &mut Vec<(f64, u32)>, new_order:&mut(f64, u32)) {
                     
                 //check which order will fulfill and list it to be removed
                 if i.1 > new_order.1 {
-                    i.1 = i.1 -  new_order.1;
+                    i.1 -=  new_order.1;
                     new_order.1 = 0;
 
                     crate::DEBUG_MODE_DATA("matching: New order fulfilled");
                 }else if i.1 < new_order.1 {    
-                    new_order.1 = new_order.1 - i.1;
+                    new_order.1 -=  i.1;
                     i.1 = 0;
                     fulfilled_order_index.push(index);//@notice rust doesn't allow borrowing for the second time so we cannot remove
                                                       // an order right here, that would be much easier.
